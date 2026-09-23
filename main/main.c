@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "driver/gpio.h"
 
 #define PWMA_PIN    GPIO_NUM_1              //orange
 #define AIN2_PIN    GPIO_NUM_2              //blue
