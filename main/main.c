@@ -34,3 +34,14 @@ static void motor_gpio_init(void)
     gpio_set_level(STBY_PIN, 1);                      
 }
 
+//モータードライバーのPWMを初期化する関数
+static void motor_pwm_init(void)
+{
+    ledc_timer_config_t timer_conf = {
+        .speed_mode       = LEDC_LOW_SPEED_MODE,
+        .timer_num        = LEDC_TIMER_0,
+        .duty_resolution  = LEDC_TIMER_8_BIT,
+        .freq_hz          = 5000,
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ledc_timer_config(&timer_conf);
