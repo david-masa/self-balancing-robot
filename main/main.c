@@ -3,6 +3,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
+#include "driver/i2c_master.h"
 
 #define PWMA_PIN    GPIO_NUM_4             //orange
 #define AIN2_PIN    GPIO_NUM_5             //blue
