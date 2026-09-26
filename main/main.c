@@ -131,28 +131,22 @@ void app_main(void)
     uint8_t TEST_DUTY = 128; //デューティ比50%の値を設定
 
     while(1){
-    printf("Right motor forward\n");
+    printf("Right and left motor forward\n");
     set_motor_right(1, TEST_DUTY); //右モーターを正転させる
-    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
+    set_motor_left(-1, TEST_DUTY); //左モーターを正転させる
+    vTaskDelay(200 / portTICK_PERIOD_MS); //200ms待機
 
-    printf("Right motor backward\n");
-    set_motor_right(-1, TEST_DUTY); //右モーターを逆転させる
-    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
-
-    printf("Right motor stop\n");
+    printf("Right and left motor stop\n");
     set_motor_right(0, 0); //右モーターを停止
-
-    printf("Left motor forward\n");
-    set_motor_left(1, TEST_DUTY); //左モーターを正転させる
-    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
-
-    printf("Left motor backward\n");
-    set_motor_left(-1, TEST_DUTY); //左モーターを逆転させる
-    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
-
-    printf("Left motor stop\n");
     set_motor_left(0, 0); //左モーターを停止
 
-    }
+    printf("Right and left motor backward\n");
+    set_motor_right(-1, TEST_DUTY); //右モーターを逆転させる
+    set_motor_left(1, TEST_DUTY); //左モーターを逆転させる
+    vTaskDelay(200 / portTICK_PERIOD_MS); //200ms待機
 
+    printf("Right and left motor stop\n");
+    set_motor_right(0, 0); //右モーターを停止
+    set_motor_left(0, 0); //左モーターを停止
+    }
 }
