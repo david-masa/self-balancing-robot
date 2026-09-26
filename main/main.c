@@ -13,6 +13,7 @@
 #define BIN2_PIN    GPIO_NUM_16             //purple
 #define PWMB_PIN    GPIO_NUM_17             //yellow
 
+//モータードライバーのピンを初期化する関数
 static void motor_gpio_init(void)
 {
     //モータードライバーのピンを初期化するためにリセット
@@ -32,3 +33,4 @@ static void motor_gpio_init(void)
     //モータードライバーを有効化するためにSTBYピンをHIGHに設定
     gpio_set_level(STBY_PIN, 1);                      
 }
+
