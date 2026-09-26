@@ -22,7 +22,7 @@
 #define LEDC_CH_B       LEDC_CHANNEL_1
 
 //モータードライバーのピンを初期化する関数
-static void motor_gpio_init(void)
+static void motors_gpio_init(void)
 {
     //モータードライバーのピンを初期化するためにリセット
     gpio_reset_pin(AIN1_PIN);                         
@@ -73,4 +73,52 @@ static void motors_pwm_init(void)
         .hpoint         = 0,
     };
     ledc_channel_config(&ch_b);
+}
+
+static void set_motor_right(int direction, uint8_t duty)    //モータードライバーの右側のモーターを制御する関数
+{
+    if(direction > 0){                          //正転の場合はAIN1をHIGHに設定
+        gpio_set_level(AIN1_PIN, 1);
+    } else {
+        gpio_set_level(AIN1_PIN, 0);            //逆転または停止の場合はAIN1をLOWに設定
+    }
+
+    if(direction < 0){                          //逆転の場合はAIN2をHIGHに設定  
+        gpio_set_level(AIN2_PIN, 1);
+    } else {
+        gpio_set_level(AIN2_PIN, 0);            //正転または停止の場合はAIN2をLOWに設定
+    }
+
+    uint8_t use_duty;                           //防御的プログラミングとして、directionの値が0の場合はdutyを0に設定する
+    if(direction != 0){
+        use_duty = duty;
+    } else {
+        use_duty = 0;
+    }
+    ledc_set_duty(LEDC_MODE, LEDC_CH_A, use_duty);  //PWMのデューティを設定
+    ledc_update_duty(LEDC_MODE, LEDC_CH_A);         //PWMのデューティを更新
+}
+
+static void set_motor_left(int direction, uint8_t duty)     //モータードライバーの左側のモーターを制御する関数
+{
+    if(direction > 0){                          //正転の場合はBIN1をHIGHに設定
+        gpio_set_level(BIN1_PIN, 1);
+    } else {
+        gpio_set_level(BIN1_PIN, 0);            //逆転または停止の場合はBIN1をLOWに設定
+    }
+
+    if(direction < 0){                          //逆転の場合はBIN2をHIGHに設定  
+        gpio_set_level(BIN2_PIN, 1);
+    } else {
+        gpio_set_level(BIN2_PIN, 0);            //正転または停止の場合はBIN2をLOWに設定
+    }
+
+    uint8_t use_duty;                           //防御的プログラミングとして、directionの値が0の場合はdutyを0に設定する
+    if(direction != 0){
+        use_duty = duty;
+    } else {
+        use_duty = 0;
+    }
+    ledc_set_duty(LEDC_MODE, LEDC_CH_B, use_duty);  //PWMのデューティを設定
+    ledc_update_duty(LEDC_MODE, LEDC_CH_B);         //PWMのデューティを更新
 }
