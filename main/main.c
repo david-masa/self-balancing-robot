@@ -122,3 +122,37 @@ static void set_motor_left(int direction, uint8_t duty)     //モータードラ
     ledc_set_duty(LEDC_MODE, LEDC_CH_B, use_duty);  //PWMのデューティを設定
     ledc_update_duty(LEDC_MODE, LEDC_CH_B);         //PWMのデューティを更新
 }
+
+void app_main(void)
+{
+    motors_gpio_init();
+    motors_pwm_init();
+
+    uint8_t TEST_DUTY = 128; //デューティ比50%の値を設定
+
+    while(1){
+    printf("Right motor forward\n");
+    set_motor_right(1, TEST_DUTY); //右モーターを正転させる
+    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
+
+    printf("Right motor backward\n");
+    set_motor_right(-1, TEST_DUTY); //右モーターを逆転させる
+    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
+
+    printf("Right motor stop\n");
+    set_motor_right(0, 0); //右モーターを停止
+
+    printf("Left motor forward\n");
+    set_motor_left(1, TEST_DUTY); //左モーターを正転させる
+    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
+
+    printf("Left motor backward\n");
+    set_motor_left(-1, TEST_DUTY); //左モーターを逆転させる
+    vTaskDelay(500 / portTICK_PERIOD_MS); //500ms待機
+
+    printf("Left motor stop\n");
+    set_motor_left(0, 0); //左モーターを停止
+
+    }
+
+}
