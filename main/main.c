@@ -22,8 +22,8 @@
 #define LEDC_CH_A       LEDC_CHANNEL_0
 #define LEDC_CH_B       LEDC_CHANNEL_1
 
-#define I2C_SCL_PIN         GPIO_NUM_8
-#define I2C_SDA_PIN         GPIO_NUM_9
+#define I2C_SCL_PIN         GPIO_NUM_8      //blue
+#define I2C_SDA_PIN         GPIO_NUM_9      //green
 
 #define I2C_PORT            I2C_NUM_0
 #define I2C_FREQ_HZ         100000      // 標準モード 100kHz
