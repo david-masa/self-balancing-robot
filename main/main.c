@@ -22,6 +22,15 @@
 #define LEDC_CH_A       LEDC_CHANNEL_0
 #define LEDC_CH_B       LEDC_CHANNEL_1
 
+#define I2C_SCL_PIN         GPIO_NUM_8
+#define I2C_SDA_PIN         GPIO_NUM_9
+
+#define I2C_PORT            I2C_NUM_0
+#define I2C_FREQ_HZ         100000      // 標準モード 100kHz
+
+#define MPU6050_ADDR        0x68        // MPU6050のI2Cアドレス(AD0=LOWの場合)
+#define MPU6050_WHO_AM_I    0x75        // WHO_AM_Iレジスタのアドレス
+
 //モータードライバーのピンを初期化する関数
 static void motors_gpio_init(void)
 {
