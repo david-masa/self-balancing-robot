@@ -33,6 +33,15 @@
 
 #define MPU6050_ADDR        0x68        // MPU6050のI2Cアドレス(AD0=LOWの場合)
 #define MPU6050_WHO_AM_I    0x75        // WHO_AM_Iレジスタのアドレス
+#define MPU6050_PWR_MGMT_1    0x6B
+#define MPU6050_CONFIG        0x1A
+#define MPU6050_GYRO_CONFIG   0x1B
+#define MPU6050_ACCEL_CONFIG  0x1C
+#define MPU6050_ACCEL_XOUT_H  0x3B
+
+#define ACCEL_SCALE   16384.0f    // ±2g設定のとき 16384 LSB/g
+#define GYRO_SCALE    131.0f      // ±250dps設定のとき 131 LSB/(deg/s)
+#define RAD2DEG       57.29578f
 
 //モータードライバーのピンを初期化する関数
 static void motors_gpio_init(void)
