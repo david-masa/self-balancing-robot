@@ -43,6 +43,23 @@
 #define GYRO_SCALE    131.0f      // ±250dps設定のとき 131 LSB/(deg/s)
 #define RAD2DEG       57.29578f
 
+#define LOOP_PERIOD_MS   10       // 制御周期 10ms = 100Hz
+#define ALPHA            0.98f    // 相補フィルタ: ジャイロを信頼する割合
+#define TARGET_ANGLE     0.0f     // 直立時の角度(deg)。実機で測って書き換える
+#define IMU_SIGN         1.0f     // 前に傾いたとき角度がプラスにならなければ -1.0f
+#define MOTOR_DIR        1        // 前に傾いたとき車輪が逆回転なら -1
+
+#define KP               20.0f    // Pゲイン: 1度の傾きにつきduty 20
+#define KI               0.0f     // Iゲイン: 最初は0
+#define KD               1.0f     // Dゲイン: 角速度(deg/s)にかける
+#define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
+
+#define MOTOR_MIN_DUTY   35       // モーターが回り始める最低duty(要調整)
+#define MOTOR_MAX_DUTY   120      // VM=6.5Vのとき約3.0V相当の上限
+
+#define FALL_ANGLE       35.0f    // この角度を超えたら倒れたとみなして停止
+#define ARM_ANGLE        3.0f     // この角度以内に戻ったら制御を開始
+
 //モータードライバーのピンを初期化する関数
 static void motors_gpio_init(void)
 {
@@ -145,30 +162,217 @@ static void set_motor_left(int direction, uint8_t duty)     //モータードラ
     ledc_update_duty(LEDC_MODE, LEDC_CH_B);         //PWMのデューティを更新
 }
 
+static i2c_master_dev_handle_t mpu_dev;    // MPU6050との通信ハンドル
+
+typedef struct {
+    float ax, ay, az;     // 加速度 (g)
+    float gx, gy, gz;     // 角速度 (deg/s)
+} imu_data_t;
+
+// ---------- MPU6050 通信 ----------
+
+// レジスタに1バイト書き込む
+static esp_err_t mpu6050_write_reg(uint8_t reg, uint8_t value)
+{
+    uint8_t buf[2] = { reg, value };
+    return i2c_master_transmit(mpu_dev, buf, 2, 100);
+}
+
+// レジスタから連続で読み出す
+static esp_err_t mpu6050_read_regs(uint8_t reg, uint8_t *data, size_t len)
+{
+    return i2c_master_transmit_receive(mpu_dev, &reg, 1, data, len, 100);
+}
+
+// I2Cバスの初期化とMPU6050の設定
+static void mpu6050_init(void)
+{
+    i2c_master_bus_config_t bus_config = {
+        .i2c_port           = I2C_PORT,
+        .sda_io_num         = I2C_SDA_PIN,
+        .scl_io_num         = I2C_SCL_PIN,
+        .clk_source         = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt  = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    i2c_master_bus_handle_t bus_handle;
+    i2c_new_master_bus(&bus_config, &bus_handle);
+
+    i2c_device_config_t dev_config = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address  = MPU6050_ADDR,
+        .scl_speed_hz    = I2C_FREQ_HZ,
+    };
+    i2c_master_bus_add_device(bus_handle, &dev_config, &mpu_dev);
+
+    uint8_t who = 0;
+    mpu6050_read_regs(MPU6050_WHO_AM_I, &who, 1);
+    printf("WHO_AM_I = 0x%02X (期待値: 0x68)\n", who);
+
+    mpu6050_write_reg(MPU6050_PWR_MGMT_1, 0x00);     // スリープ解除
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+    mpu6050_write_reg(MPU6050_CONFIG, 0x03);         // ローパスフィルタ 約44Hz
+    mpu6050_write_reg(MPU6050_GYRO_CONFIG, 0x00);    // ジャイロ ±250deg/s
+    mpu6050_write_reg(MPU6050_ACCEL_CONFIG, 0x00);   // 加速度 ±2g
+}
+
+// 加速度・角速度を1回読み出して物理量に変換する
+static bool mpu6050_read(imu_data_t *d)
+{
+    uint8_t raw[14];
+    if (mpu6050_read_regs(MPU6050_ACCEL_XOUT_H, raw, 14) != ESP_OK) {
+        return false;
+    }
+
+    // 上位バイトと下位バイトを合体して符号付き16bitにする
+    int16_t ax = (int16_t)((raw[0]  << 8) | raw[1]);
+    int16_t ay = (int16_t)((raw[2]  << 8) | raw[3]);
+    int16_t az = (int16_t)((raw[4]  << 8) | raw[5]);
+    // raw[6], raw[7] は温度なので使わない
+    int16_t gx = (int16_t)((raw[8]  << 8) | raw[9]);
+    int16_t gy = (int16_t)((raw[10] << 8) | raw[11]);
+    int16_t gz = (int16_t)((raw[12] << 8) | raw[13]);
+
+    d->ax = ax / ACCEL_SCALE;
+    d->ay = ay / ACCEL_SCALE;
+    d->az = az / ACCEL_SCALE;
+    d->gx = gx / GYRO_SCALE;
+    d->gy = gy / GYRO_SCALE;
+    d->gz = gz / GYRO_SCALE;
+    return true;
+}
+
+// ---------- 角度の計算 ----------
+
+// 加速度から求めた傾き角(acc_angle)と、傾き方向の角速度(rate)を取り出す。
+// ★MPU6050の取り付け向きで使う軸が変わる。
+//   車輪の軸がMPU6050のX軸と平行 → 下のまま
+//   車輪の軸がMPU6050のY軸と平行 → acc_angle = atan2f(-d->ax, d->az)、rate = d->gy
+static void imu_to_angle(const imu_data_t *d, float *acc_angle, float *rate)
+{
+    *acc_angle = IMU_SIGN * atan2f(d->ay, d->az) * RAD2DEG;
+    *rate      = IMU_SIGN * d->gx;
+}
+
+// ---------- モーター駆動 ----------
+
+static void motors_stop(void)
+{
+    set_motor_right(0, 0);
+    set_motor_left(0, 0);
+}
+
+// PID出力uを、モーターの向きとdutyに変換して駆動する
+static void drive_motors(float u)
+{
+    float mag = fabsf(u);
+    if (mag < 1.0f) {                       // 出力がほぼ0なら止める
+        motors_stop();
+        return;
+    }
+
+    int direction = (u > 0) ? MOTOR_DIR : -MOTOR_DIR;
+
+    float duty_f = mag + MOTOR_MIN_DUTY;    // 回り始める分を上乗せする
+    if (duty_f > MOTOR_MAX_DUTY) {
+        duty_f = MOTOR_MAX_DUTY;
+    }
+    uint8_t duty = (uint8_t)duty_f;
+
+    set_motor_right(direction, duty);
+    set_motor_left(-direction, duty);       // 左モーターは向きが逆に付いているので反転
+}
+
 void app_main(void)
 {
     motors_gpio_init();
     motors_pwm_init();
+    motors_stop();
+    mpu6050_init();
 
-    uint8_t TEST_DUTY = 128; //デューティ比50%の値を設定
+    imu_data_t imu;
+    float acc_angle, rate;
 
-    while(1){
-    printf("Right and left motor forward\n");
-    set_motor_right(1, TEST_DUTY); //右モーターを正転させる
-    set_motor_left(-1, TEST_DUTY); //左モーターを正転させる
-    vTaskDelay(200 / portTICK_PERIOD_MS); //200ms待機
+    // ===== ジャイロのゼロ点補正（起動直後、機体を動かさず静止させておく） =====
+    printf("ジャイロ補正中。機体を動かさないでください...\n");
+    float rate_bias = 0.0f;
+    const int CALIB_COUNT = 200;
+    int ok_count = 0;
+    for (int i = 0; i < CALIB_COUNT; i++) {
+        if (mpu6050_read(&imu)) {
+            imu_to_angle(&imu, &acc_angle, &rate);
+            rate_bias += rate;
+            ok_count++;
+        }
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
+    if (ok_count > 0) {
+        rate_bias /= ok_count;
+    }
+    printf("補正完了 rate_bias = %.3f deg/s\n", rate_bias);
 
-    printf("Right and left motor stop\n");
-    set_motor_right(0, 0); //右モーターを停止
-    set_motor_left(0, 0); //左モーターを停止
+    // ===== 初期角度は加速度から求める =====
+    mpu6050_read(&imu);
+    imu_to_angle(&imu, &acc_angle, &rate);
+    float angle = acc_angle;
 
-    printf("Right and left motor backward\n");
-    set_motor_right(-1, TEST_DUTY); //右モーターを逆転させる
-    set_motor_left(1, TEST_DUTY); //左モーターを逆転させる
-    vTaskDelay(200 / portTICK_PERIOD_MS); //200ms待機
+    float integral = 0.0f;
+    bool  armed = false;
+    int   print_count = 0;
 
-    printf("Right and left motor stop\n");
-    set_motor_right(0, 0); //右モーターを停止
-    set_motor_left(0, 0); //左モーターを停止
+    TickType_t last_wake = xTaskGetTickCount();
+    int64_t prev_us = esp_timer_get_time();
+
+    while (1) {
+        // --- 経過時間 dt (秒) を実測する ---
+        int64_t now_us = esp_timer_get_time();
+        float dt = (now_us - prev_us) / 1000000.0f;
+        prev_us = now_us;
+
+        // --- センサー読み出し ---
+        if (!mpu6050_read(&imu)) {          // 読み出し失敗時は安全のため停止
+            motors_stop();
+            vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
+            continue;
+        }
+        imu_to_angle(&imu, &acc_angle, &rate);
+        rate -= rate_bias;
+
+        // --- 相補フィルタ: ジャイロの積分と加速度角を混ぜる ---
+        angle = ALPHA * (angle + rate * dt) + (1.0f - ALPHA) * acc_angle;
+
+        // --- 偏差 ---
+        float error = angle - TARGET_ANGLE;
+
+        if (!armed) {
+            // 待機中: 直立に近づくまでモーターは止めたまま
+            motors_stop();
+            integral = 0.0f;
+            if (fabsf(error) < ARM_ANGLE) {
+                armed = true;
+            }
+        } else if (fabsf(error) > FALL_ANGLE) {
+            // 倒れた: 停止して待機状態に戻る
+            motors_stop();
+            armed = false;
+        } else {
+            // ===== PID制御 =====
+            integral += error * dt;
+            if (integral >  INTEGRAL_MAX) integral =  INTEGRAL_MAX;
+            if (integral < -INTEGRAL_MAX) integral = -INTEGRAL_MAX;
+
+            float u = KP * error + KI * integral + KD * rate;
+            drive_motors(u);
+        }
+
+        // --- デバッグ表示（毎回出すと遅くなるので20回に1回） ---
+        print_count++;
+        if (print_count >= 20) {
+            print_count = 0;
+            printf("angle=%.2f  acc=%.2f  rate=%.2f  armed=%d\n",
+                   angle, acc_angle, rate, armed);
+        }
+
+        vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
     }
 }
