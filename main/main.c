@@ -49,12 +49,12 @@
 #define IMU_SIGN         1.0f     // 前に傾いたとき角度がプラスにならなければ -1.0f
 #define MOTOR_DIR        1        // 前に傾いたとき車輪が逆回転なら -1
 
-#define KP               20.0f    // Pゲイン: 1度の傾きにつきduty 20
+#define KP               30.0f    // Pゲイン: 1度の傾きにつきduty 20
 #define KI               0.0f     // Iゲイン: 最初は0
 #define KD               1.0f     // Dゲイン: 角速度(deg/s)にかける
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
-#define MOTOR_MIN_DUTY   35       // モーターが回り始める最低duty(要調整)
+#define MOTOR_MIN_DUTY   45       // モーターが回り始める最低duty(要調整)
 #define MOTOR_MAX_DUTY   120      // VM=6.5Vのとき約3.0V相当の上限
 
 #define FALL_ANGLE       35.0f    // この角度を超えたら倒れたとみなして停止
