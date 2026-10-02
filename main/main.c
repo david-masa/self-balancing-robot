@@ -20,7 +20,7 @@
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_FREQ_HZ    5000
-#define LEDC_RES_BITS   LEDC_TIMER_8_BIT
+#define LEDC_RES_BITS   LEDC_TIMER_8_BIT        //dutyは0~255の範囲
 
 #define LEDC_CH_A       LEDC_CHANNEL_0
 #define LEDC_CH_B       LEDC_CHANNEL_1
