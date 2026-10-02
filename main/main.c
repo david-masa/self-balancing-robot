@@ -20,7 +20,7 @@
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
 #define LEDC_FREQ_HZ    5000
-#define LEDC_RES_BITS   LEDC_TIMER_8_BIT
+#define LEDC_RES_BITS   LEDC_TIMER_8_BIT        //dutyは0~255の範囲
 
 #define LEDC_CH_A       LEDC_CHANNEL_0
 #define LEDC_CH_B       LEDC_CHANNEL_1
@@ -49,9 +49,9 @@
 #define IMU_SIGN         1.0f     // 前に傾いたとき角度がプラスにならなければ -1.0f
 #define MOTOR_DIR        1        // 前に傾いたとき車輪が逆回転なら -1
 
-#define KP               25.0f    // Pゲイン: 1度の傾きにつきduty 20
-#define KI               0.0f     // Iゲイン: 最初は0
-#define KD               1.0f     // Dゲイン: 角速度(deg/s)にかける
+#define KP               25.0f    // Pゲイン:どれくらい傾いているか？ 1度の傾きにつきduty 20
+#define KI               0.0f     // Iゲイン:どれくらい傾きが残っているか？ 最初は0
+#define KD               1.0f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
 #define MOTOR_MIN_DUTY   45       // モーターが回り始める最低duty(要調整)
