@@ -3,7 +3,7 @@
 #include "freertos/task.h"                   //タスクを操作するため。
 #include "driver/gpio.h"                     //GPIOピンの入出力操作ができるようにするため。
 #include "driver/ledc.h"                     //PWMを使えるようにするため。LED用だがモーターなどにも応用可能で、MCPMWよりも簡素な機能。
-#include "driver/i2c_master.h"
+#include "driver/i2c_master.h"               //I2C通信に必要で、ESP-IDFでは新しいヘッダー。
 #include <math.h>                            //数学関数を使えるようにするため。atan2f(),fabsf()など。
 #include <stdbool.h>
 #include "esp_timer.h"
