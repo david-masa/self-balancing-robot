@@ -4,7 +4,7 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/i2c_master.h"
-#include <math.h>
+#include <math.h>                            //数学関数を使えるようにするため。atan2f(),fabsf()など。
 #include <stdbool.h>
 #include "esp_timer.h"
 
