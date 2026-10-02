@@ -6,7 +6,7 @@
 #include "driver/i2c_master.h"               //I2C通信に必要で、ESP-IDFでは新しいヘッダー。
 #include <math.h>                            //数学関数を使えるようにするため。atan2f(),fabsf()など。
 #include <stdbool.h>                         //bool,true,falseを使えるようにするため。
-#include "esp_timer.h"
+#include "esp_timer.h"                       //int64_t time = esp_timer_get_time();で起動からの経過時間u秒が取得可能。
 
 #define PWMA_PIN    GPIO_NUM_4             //orange
 #define AIN2_PIN    GPIO_NUM_5             //blue
