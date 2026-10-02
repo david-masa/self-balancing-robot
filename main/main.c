@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"               //FreeRTOSの基本機能         
 #include "freertos/task.h"                   //タスクを操作するため。
-#include "driver/gpio.h"
+#include "driver/gpio.h"                     //GPIOピンの入出力操作ができるようにするため。
 #include "driver/ledc.h"
 #include "driver/i2c_master.h"
 #include <math.h>                            //数学関数を使えるようにするため。atan2f(),fabsf()など。
