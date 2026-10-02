@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"             
 #include "freertos/task.h"
-#include "driver/gpio.h"
-#include "driver/ledc.h"
-#include "driver/i2c_master.h"
+#include "driver/gpio.h"                     //GPIOピンの入出力操作ができるようにするため。
+#include "driver/ledc.h"                     //PWMを使えるようにするため。LED用だがモーターなどにも応用可能で、MCPMWよりも簡素な機能。
+#include "driver/i2c_master.h"               //I2C通信に必要で、ESP-IDFでは新しいヘッダー。
 #include <math.h>                            //数学関数を使えるようにするため。sqrt,pow,sin,cos,tanなど。
 #include <stdbool.h>                         //bool,true,falseを使えるようにするため。
 #include "esp_timer.h"                       //int64_t time = esp_timer_get_time();で起動からの経過時間u秒が取得可能。
