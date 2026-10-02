@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"             
+#include "freertos/FreeRTOS.h"               //FreeRTOSの基本機能         
 #include "freertos/task.h"                   //タスクを操作するため。
 #include "driver/gpio.h"
 #include "driver/ledc.h"
