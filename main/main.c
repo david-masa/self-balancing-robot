@@ -4,9 +4,9 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/i2c_master.h"
-#include <math.h>
-#include <stdbool.h>
-#include "esp_timer.h"
+#include <math.h>                            //数学関数を使えるようにするため。sqrt,pow,sin,cos,tanなど。
+#include <stdbool.h>                         //bool,true,falseを使えるようにするため。
+#include "esp_timer.h"                       //int64_t time = esp_timer_get_time();で起動からの経過時間u秒が取得可能。
 
 #define PWMA_PIN    GPIO_NUM_4             //orange
 #define AIN2_PIN    GPIO_NUM_5             //blue
