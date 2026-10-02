@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"             
-#include "freertos/task.h"
+#include "freertos/FreeRTOS.h"               //FreeRTOSの基本機能
+#include "freertos/task.h"                   //タスクを操作するため。
 #include "driver/gpio.h"                     //GPIOピンの入出力操作ができるようにするため。
 #include "driver/ledc.h"                     //PWMを使えるようにするため。LED用だがモーターなどにも応用可能で、MCPMWよりも簡素な機能。
 #include "driver/i2c_master.h"               //I2C通信に必要で、ESP-IDFでは新しいヘッダー。
