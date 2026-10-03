@@ -54,7 +54,7 @@
 #define KD               1.0f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
-#define MOTOR_MIN_DUTY   45       // モーターが回り始める最低duty(要調整)
+#define MOTOR_MIN_DUTY   60       // モーターが回り始める最低duty(要調整)
 #define MOTOR_MAX_DUTY   120      // VM=6.5Vのとき約3.0V相当の上限
 
 #define FALL_ANGLE       35.0f    // この角度を超えたら倒れたとみなして停止
