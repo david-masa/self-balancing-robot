@@ -55,7 +55,7 @@
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
 #define MOTOR_MIN_DUTY   45       // モーターが回り始める最低duty
-#define MOTOR_MAX_DUTY   120      // VM=6.5Vのとき約3.0V相当の上限
+#define MOTOR_MAX_DUTY   207      // VM=3.7Vのとき約3.0V相当の上限
 
 #define FALL_ANGLE       35.0f    // この角度を超えたら倒れたとみなして停止
 #define ARM_ANGLE        3.0f     // この角度以内に戻ったら制御を開始
