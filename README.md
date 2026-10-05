@@ -1,3 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
+#include "MyPi.h"
+
+#define LCD_ADR 0x3e
+#define LCD_IR 0x00
+
+#define SEN_RIGHT 4
+#define SEN_CENTER 5
+#define SEN_LEFT 6
+
+const int inGpio[3] = {SEN_RIGHT, SEN_CENTER, SEN_LEFT};
+
+int ReadSens(void);
+void Sens2Lcd(int fd, int sensors);
+
+int main(void)
+{
+	int fd;
+	int i;
+	int sensors;
+	int old = 0b0111;
+	wiringPiSetupGpio();
+	for(i = 0; i < 3; i++){
+		pinMode(inGpio[i], INPUT);
+	}
+
+	for(i = 0; i < 3; i++){
+		pullUpDnControl(inGpio[i], PUD_DOWN);
+	}
+
+	fd = wiringPiI2CSetup(LCD_ADR);
+	LcdSetup(fd);
+
+	while(1){
+		sensors = ReadSens();
+		if(sensors != old){
+			LcdClear(fd);
+			Sens2Lcd(fd, sensors);
+			old = sensors;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+
 2026年9月のシルバーウィーク中に、本体のハードウェア側を作成しました。<br>
 現時点（2026/9/23）での本体画像。<br>
 本体前側<br>
