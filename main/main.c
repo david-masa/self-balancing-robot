@@ -45,13 +45,13 @@
 
 #define LOOP_PERIOD_MS   10       // 制御周期 10ms = 100Hz
 #define ALPHA            0.98f    // 相補フィルタ: ジャイロを信頼する割合
-#define TARGET_ANGLE     -5.0f     // 直立時の角度(deg)。
+#define TARGET_ANGLE     -0.6f     // 直立時の角度(deg)。
 #define IMU_SIGN         1.0f     // 前に傾いたとき角度がプラスにならなければ -1.0f
 #define MOTOR_DIR        1        // 前に傾いたとき車輪が逆回転なら -1
 
 #define KP               70.0f    // Pゲイン:どれくらい傾いているか？ 1度の傾きにつきduty 20
 #define KI               0.0f     // Iゲイン:どれくらい傾きが残っているか？ 最初は0
-#define KD               2.5f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
+#define KD               1.5f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
 #define MOTOR_MIN_DUTY   150       // モーターが回り始める最低duty
