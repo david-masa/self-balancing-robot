@@ -250,8 +250,8 @@ static bool mpu6050_read(imu_data_t *d)
 //   車輪の軸がMPU6050のY軸と平行 → acc_angle = atan2f(-d->ax, d->az)、rate = d->gy
 static void imu_to_angle(const imu_data_t *d, float *acc_angle, float *rate)
 {
-    *acc_angle = IMU_SIGN * atan2f(d->ay, d->az) * RAD2DEG;
-    *rate      = IMU_SIGN * d->gx;
+    *acc_angle = IMU_SIGN * atan2f(d->ax, d->az) * RAD2DEG;
+    *rate      = IMU_SIGN * d->gy;
 }
 
 // ---------- モーター駆動 ----------
