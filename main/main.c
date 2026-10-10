@@ -291,88 +291,11 @@ void app_main(void)
     mpu6050_init();
 
     imu_data_t imu;
-    float acc_angle, rate;
-
-    // ===== ジャイロのゼロ点補正（起動直後、機体を動かさず静止させておく） =====
-    printf("ジャイロ補正中。機体を動かさないでください...\n");
-    float rate_bias = 0.0f;
-    const int CALIB_COUNT = 200;
-    int ok_count = 0;
-    for (int i = 0; i < CALIB_COUNT; i++) {
-        if (mpu6050_read(&imu)) {
-            imu_to_angle(&imu, &acc_angle, &rate);
-            rate_bias += rate;
-            ok_count++;
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    }
-    if (ok_count > 0) {
-        rate_bias /= ok_count;
-    }
-    printf("補正完了 rate_bias = %.3f deg/s\n", rate_bias);
-
-    // ===== 初期角度は加速度から求める =====
-    mpu6050_read(&imu);
-    imu_to_angle(&imu, &acc_angle, &rate);
-    float angle = acc_angle;
-
-    float integral = 0.0f;
-    bool  armed = false;
-    int   print_count = 0;
-
-    TickType_t last_wake = xTaskGetTickCount();
-    int64_t prev_us = esp_timer_get_time();
-
     while (1) {
-        // --- 経過時間 dt (秒) を実測する ---
-        int64_t now_us = esp_timer_get_time();
-        float dt = (now_us - prev_us) / 1000000.0f;
-        prev_us = now_us;
-
-        // --- センサー読み出し ---
-        if (!mpu6050_read(&imu)) {          // 読み出し失敗時は安全のため停止
-            motors_stop();
-            vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
-            continue;
+        if (mpu6050_read(&imu)) {
+            printf("ax=%5.2f ay=%5.2f az=%5.2f | gx=%7.1f gy=%7.1f gz=%7.1f\n",
+                   imu.ax, imu.ay, imu.az, imu.gx, imu.gy, imu.gz);
         }
-        imu_to_angle(&imu, &acc_angle, &rate);
-        rate -= rate_bias;
-
-        // --- 相補フィルタ: ジャイロの積分と加速度角を混ぜる ---
-        angle = ALPHA * (angle + rate * dt) + (1.0f - ALPHA) * acc_angle;
-
-        // --- 偏差 ---
-        float error = angle - TARGET_ANGLE;
-
-        if (!armed) {
-            // 待機中: 直立に近づくまでモーターは止めたまま
-            motors_stop();
-            integral = 0.0f;
-            if (fabsf(error) < ARM_ANGLE) {
-                armed = true;
-            }
-        } else if (fabsf(error) > FALL_ANGLE) {
-            // 倒れた: 停止して待機状態に戻る
-            motors_stop();
-            armed = false;
-        } else {
-            // ===== PID制御 =====
-            integral += error * dt;
-            if (integral >  INTEGRAL_MAX) integral =  INTEGRAL_MAX;
-            if (integral < -INTEGRAL_MAX) integral = -INTEGRAL_MAX;
-
-            float u = KP * error + KI * integral + KD * rate;
-            drive_motors(u);
-        }
-
-        // --- デバッグ表示（毎回出すと遅くなるので20回に1回） ---
-        print_count++;
-        if (print_count >= 20) {
-            print_count = 0;
-            printf("angle=%.2f  acc=%.2f  rate=%.2f  armed=%d\n",
-                   angle, acc_angle, rate, armed);
-        }
-
-        vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
+        vTaskDelay(200 / portTICK_PERIOD_MS);
     }
 }
