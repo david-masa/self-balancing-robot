@@ -245,9 +245,6 @@ static bool mpu6050_read(imu_data_t *d)
 // ---------- 角度の計算 ----------
 
 // 加速度から求めた傾き角(acc_angle)と、傾き方向の角速度(rate)を取り出す。
-// ★MPU6050の取り付け向きで使う軸が変わる。
-//   車輪の軸がMPU6050のX軸と平行 → 下のまま
-//   車輪の軸がMPU6050のY軸と平行 → acc_angle = atan2f(-d->ax, d->az)、rate = d->gy
 static void imu_to_angle(const imu_data_t *d, float *acc_angle, float *rate)
 {
     *acc_angle = IMU_SIGN * atan2f(-d->ax, d->az) * RAD2DEG;
