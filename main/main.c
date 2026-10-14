@@ -51,7 +51,7 @@
 
 #define KP               35.0f    // Pゲイン:どれくらい傾いているか？ 1度の傾きにつきduty 20
 #define KI               0.0f     // Iゲイン:どれくらい傾きが残っているか？ 最初は0
-#define KD               1.5f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
+#define KD               0.0f     // Dゲイン:どれくらいの勢いで倒れているか？ 角速度(deg/s)にかける
 #define INTEGRAL_MAX     50.0f    // 積分値の上限(アンチワインドアップ)
 
 #define MOTOR_MIN_DUTY   100       // モーターが回り始める最低duty
