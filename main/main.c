@@ -329,6 +329,7 @@ void app_main(void)
         // --- センサー読み出し ---
         if (!mpu6050_read(&imu)) {          // 読み出し失敗時は安全のため停止
             motors_stop();
+            printf("IMUの読み取りに失敗しました\n");
             vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
             continue;
         }
