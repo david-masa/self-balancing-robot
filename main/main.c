@@ -319,6 +319,8 @@ void app_main(void)
 
     TickType_t last_wake = xTaskGetTickCount();
     int64_t prev_us = esp_timer_get_time();
+    int fail_count = 0;          // 連続で失敗した回数
+    const int MAX_FAIL = 3;      // これだけ続けて失敗したら止める
 
     while (1) {
         // --- 経過時間 dt (秒) を実測する ---
@@ -327,12 +329,19 @@ void app_main(void)
         prev_us = now_us;
 
         // --- センサー読み出し ---
-        if (!mpu6050_read(&imu)) {          // 読み出し失敗時は安全のため停止
-            motors_stop();
-            printf("IMUの読み取りに失敗しました\n");
+        if (!mpu6050_read(&imu)) {          // 読み取りに失敗したとき
+            fail_count++;
+            if (fail_count == MAX_FAIL) {
+                printf("IMUの読み取りに連続で失敗しました\n");
+            }
+            if (fail_count >= MAX_FAIL) {
+                motors_stop();              // 3回続けて失敗したら止める
+            }
+            // 3回未満なら、止めずに前回のモーター出力のまま動かし続ける
             vTaskDelayUntil(&last_wake, LOOP_PERIOD_MS / portTICK_PERIOD_MS);
             continue;
         }
+        fail_count = 0;                     // 成功したら、失敗の回数をリセット
         imu_to_angle(&imu, &acc_angle, &rate);
         rate -= rate_bias;
 
