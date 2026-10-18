@@ -58,7 +58,7 @@
 #define MOTOR_MAX_DUTY   255      // VM=3.7Vのとき約3.0V相当の上限
 
 #define FALL_ANGLE       60.0f    // この角度を超えたら倒れたとみなして停止
-#define ARM_ANGLE        1.0f     // この角度以内に戻ったら制御を開始
+#define ARM_ANGLE        3.0f     // この角度以内に戻ったら制御を開始
 
 //モータードライバーのピンを初期化する関数
 static void motors_gpio_init(void)
