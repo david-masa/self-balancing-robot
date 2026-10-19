@@ -42,6 +42,7 @@
 #define ACCEL_SCALE   16384.0f    // ±2g設定のとき 16384 LSB/g
 #define GYRO_SCALE    131.0f      // ±250dps設定のとき 131 LSB/(deg/s)
 #define RAD2DEG       57.29578f
+#define GYRO_BIAS   1.5f    // 静止時にジャイロが示す値(deg/s)。実測して書き換える
 
 #define LOOP_PERIOD_MS   10       // 制御周期 10ms = 100Hz
 #define ALPHA            0.98f    // 相補フィルタ: ジャイロを信頼する割合
@@ -290,23 +291,7 @@ void app_main(void)
     imu_data_t imu;
     float acc_angle, rate;
 
-    // ===== ジャイロのゼロ点補正（起動直後、機体を動かさず静止させておく） =====
-    printf("ジャイロ補正中。機体を動かさないでください...\n");
-    float rate_bias = 0.0f;
-    const int CALIB_COUNT = 200;
-    int ok_count = 0;
-    for (int i = 0; i < CALIB_COUNT; i++) {
-        if (mpu6050_read(&imu)) {
-            imu_to_angle(&imu, &acc_angle, &rate);
-            rate_bias += rate;
-            ok_count++;
-        }
-        vTaskDelay(10 / portTICK_PERIOD_MS);
-    }
-    if (ok_count > 0) {
-        rate_bias /= ok_count;
-    }
-    printf("補正完了 rate_bias = %.3f deg/s\n", rate_bias);
+    float rate_bias = GYRO_BIAS;     // 補正は毎回やらず、固定値を使う
 
     // ===== 初期角度は加速度から求める =====
     mpu6050_read(&imu);
