@@ -1,4 +1,4 @@
-2026年9月のシルバーウィーク中に、本体のハードウェア側を作成しました。<br>
+
 現時点（2026/9/23）での本体画像。<br>
 本体前側<br>
 <img width="3024" height="4032" alt="PXL_20260923_035454095" src="https://github.com/user-attachments/assets/679011d4-108d-41a2-a72e-d121e5116f4f" />
