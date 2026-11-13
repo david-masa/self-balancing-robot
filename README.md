@@ -1,14 +1,16 @@
-本体前側<br>
+<img width="3024" height="4032" alt="PXL_20261018_215850343" src="https://github.com/user-attachments/assets/d2a92596-128a-479c-a2c8-a9c929db31c3" />
+<img width="3024" height="4032" alt="PXL_20261018_215828259" src="https://github.com/user-attachments/assets/f2e75be1-ebcb-4c14-a011-3f18ef8a7f6c" />
+<img width="3024" height="4032" alt="PXL_20261018_215840568" src="https://github.com/user-attachments/assets/60c06bd3-507f-4287-819d-06930ead6766" />
+<img width="3024" height="4032" alt="PXL_20261018_215818220" src="https://github.com/user-attachments/assets/5a7a0e35-8b08-44ff-b6c3-3aaccc8e73d6" />
+
+
+
+
+
+初期モデル<br>
 <img width="3024" height="4032" alt="PXL_20260923_035454095" src="https://github.com/user-attachments/assets/679011d4-108d-41a2-a72e-d121e5116f4f" />
 
-本体後側<br>
-<img width="3024" height="4032" alt="PXL_20260923_035444679" src="https://github.com/user-attachments/assets/974e04ac-b3ae-48fc-b891-c5f9b2120c77" />
 
-バッテリー充電モジュール、昇圧モジュール<br>
-<img width="4032" height="3024" alt="PXL_20260923_035553549" src="https://github.com/user-attachments/assets/522b16b9-a5d3-498d-a7da-a0cd85ea27f3" />
-
-ダブルギアボックス4速、トルクチューン２モーター使用、100nF積層セラミックコンデンサ使用<br>
-<img width="3024" height="4032" alt="PXL_20260923_035738868" src="https://github.com/user-attachments/assets/6e43f7eb-3b8f-44c5-91ec-2af4c2d83111" />
 
 ## トラブルシューティング
 
