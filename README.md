@@ -13,8 +13,6 @@
 初期モデル<br>
 <img width="3024" height="4032" alt="PXL_20260923_035454095" src="https://github.com/user-attachments/assets/679011d4-108d-41a2-a72e-d121e5116f4f" />
 
-
-
 ## トラブルシューティング
 
 ### モーターが動かない・動作が不安定なときのメモ
